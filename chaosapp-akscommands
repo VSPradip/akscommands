@@ -1,0 +1,45 @@
+# Use your subscription id, service principal id and tenant id wherever applicable
+
+# Signing In to Azure with Service Principal
+ 
+az login --service-principal -u d11e109f-4370-4d81-942e-12680dcd5da -p SSr8Q~8iAJ3QsvdWZhPcNAh.BQJ5K5IKFcRWjcGh --tenant 16b3c013-d750-468d-ac64-7eda0820b6d3
+ 
+# Selecting Azure Subscription
+ 
+az account set --subscription 3d922f8e-6b39-4b83-89fc-e53f61dd750b
+ 
+# Getting your AKS Private Cluster
+ 
+az aks get-credentials --resource-group RG-AKS-SEA --name aksclusea001
+ 
+# Creating Namespace
+ 
+kubectl create ns chaos-testing
+ 
+# Adding Helm Repo (Download Helm locally, unzip and use the executable to invoke the following commands)
+ 
+helm repo add chaos-mesh https://charts.chaos-mesh.org
+ 
+helm repo update
+ 
+helm install chaos-mesh chaos-mesh/chaos-mesh --namespace=chaos-testing --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock
+ 
+# Installing Application from Container Registry
+ 
+kubectl run sample-app --image=containersea001.azurecr.io/sample-app:latest --namespace=chaos-testing
+ 
+# Exposing the App for Public Access
+ 
+kubectl expose pod sample-app --type=LoadBalancer --port=80 --target-port=8080 --namespace=chaos-testing
+ 
+# Retrieving Public IP for your Application
+ 
+kubectl get services --namespace=chaos-testing
+ 
+# Deleting the Application
+ 
+kubectl delete service sample-app --namespace=chaos-testing
+ 
+# Deleting the POD where Application is running
+ 
+kubectl delete pod sample-app --namespace=chaos-testing
